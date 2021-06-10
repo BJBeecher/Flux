@@ -5,4 +5,6 @@
 //  Created by BJ Beecher on 6/10/21.
 //
 
-public typealias Reducer<State, Action> = (inout State, Action) -> Void
+import Combine
+
+public typealias Reducer<State, Action, Environment> = (inout State, Action, Environment) -> AnyPublisher<Action, Never>?

@@ -8,35 +8,36 @@
 import Foundation
 import Combine
 
-public final class Store<State, Action> : ObservableObject {
+public final class Store<State, Action, Environment> : ObservableObject {
     @Published public private (set) var state : State
     
-    let reducer : Reducer<State, Action>
+    let reducer : Reducer<State, Action, Environment>
+    let environment : Environment
     
-    let middlewares : [Middleware<State, Action>]
-    
-    public init(initialState state: State, reducer: @escaping Reducer<State, Action>, middlewares: [Middleware<State, Action>]){
+    public init(initialState state: State, reducer: @escaping Reducer<State, Action, Environment>, environment: Environment){
         self.state = state
         self.reducer = reducer
-        self.middlewares = middlewares
+        self.environment = environment
     }
     
-    var tokens = Set<AnyCancellable>()
+    var sideEffects = Set<AnyCancellable>()
     
     public func dispatch(_ action: Action){
-        reducer(&state, action)
+        guard let sideEffect = reducer(&state, action, environment) else { return }
         
-        for perform in middlewares {
-            if let sideEffect = perform(state, action) {
-                sideEffect
-                    .receive(on: DispatchQueue.main)
-                    .sink(receiveValue: dispatch)
-                    .store(in: &tokens)
-            }
-        }
+        sideEffect
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: dispatch)
+            .store(in: &sideEffects)
     }
     
-    public func derived<DerivedState: Equatable, ExtractedAction>(deriveState: (State) -> DerivedState, embedAction: @escaping (ExtractedAction) -> Action) -> Store<DerivedState, ExtractedAction> {
-        return .init(initialState: deriveState(state), reducer: { self.dispatch(embedAction($1)) }, middlewares: [])
+    public func derived<DerivedState: Equatable, ExtractedAction>(
+        deriveState: (State) -> DerivedState,
+        embedAction: @escaping (ExtractedAction) -> Action
+    ) -> Store<DerivedState, ExtractedAction, Environment> {
+        .init(initialState: deriveState(state), reducer: { _, action, _ in
+            self.dispatch(embedAction(action))
+            return nil
+        }, environment: environment)
     }
 }
