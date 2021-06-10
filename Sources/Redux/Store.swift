@@ -35,4 +35,8 @@ public final class Store<State, Action> : ObservableObject {
             }
         }
     }
+    
+    public func derived<DerivedState: Equatable, ExtractedAction>(deriveState: (State) -> DerivedState, embedAction: @escaping (ExtractedAction) -> Action) -> Store<DerivedState, ExtractedAction> {
+        return .init(initialState: deriveState(state), reducer: { self.dispatch(embedAction($1)) }, middlewares: [])
+    }
 }
