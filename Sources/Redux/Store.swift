@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 public final class Store<State, Action, Environment> : ObservableObject {
     @Published public private (set) var state : State
@@ -39,5 +40,13 @@ public final class Store<State, Action, Environment> : ObservableObject {
             self.dispatch(embedAction(action))
             return nil
         }, environment: environment)
+    }
+    
+    public func binding<Value>(for keypath: KeyPath<State, Value>, transform: @escaping (Value) -> Action) -> Binding<Value> {
+        Binding {
+            self.state[keyPath: keypath]
+        } set: { newValue in
+            self.dispatch(transform(newValue))
+        }
     }
 }
