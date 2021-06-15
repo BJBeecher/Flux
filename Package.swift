@@ -4,20 +4,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "Redux",
+    name: "Flux",
     platforms: [.iOS(.v13)],
     products: [
         .library(
-            name: "Redux",
-            targets: ["Redux"]),
+            name: "Flux",
+            targets: ["Flux"]),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "Redux",
+            name: "Flux",
             dependencies: []),
         .testTarget(
-            name: "ReduxTests",
-            dependencies: ["Redux"]),
+            name: "FluxTests",
+            dependencies: ["Flux"]),
     ]
 )
