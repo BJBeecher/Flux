@@ -9,13 +9,13 @@ import Foundation
 import Combine
 import SwiftUI
 
-public final class Store<State, Action, Environment> : ObservableObject {
+public final class FluxStore<State : FluxState, Action: FluxAction, Environment: FluxEnvironment> : ObservableObject {
     @Published public private (set) var state : State
     
-    let reducer : Reducer<State, Action, Environment>
+    let reducer : FluxReducer<State, Action, Environment>
     let environment : Environment
     
-    public init(initialState state: State, reducer: @escaping Reducer<State, Action, Environment>, environment: Environment){
+    public init(initialState state: State, reducer: @escaping FluxReducer<State, Action, Environment>, environment: Environment){
         self.state = state
         self.reducer = reducer
         self.environment = environment
@@ -35,7 +35,7 @@ public final class Store<State, Action, Environment> : ObservableObject {
     public func derived<DerivedState: Equatable, ExtractedAction>(
         deriveState: (State) -> DerivedState,
         embedAction: @escaping (ExtractedAction) -> Action
-    ) -> Store<DerivedState, ExtractedAction, Environment> {
+    ) -> FluxStore<DerivedState, ExtractedAction, Environment> {
         .init(initialState: deriveState(state), reducer: { _, action, _ in
             self.dispatch(embedAction(action))
             return nil
