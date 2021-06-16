@@ -23,18 +23,12 @@ public final class FluxStore<State : FluxState, Action: FluxAction, Environment:
     
     var sideEffects = Set<AnyCancellable>()
     
-    public func dispatch(_ action: Action, queue: DispatchQueue = .main){
-        var newState = state
-        
-        guard let sideEffect = reducer(&newState, action, environment) else { return }
-        
-        queue.async {
-            self.state = newState
-        }
+    public func dispatch(_ action: Action){
+        guard let sideEffect = reducer(&state, action, environment) else { return }
         
         sideEffect
-            .receive(on: queue)
-            .sink { self.dispatch($0, queue: queue) }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: dispatch)
             .store(in: &sideEffects)
     }
     
