@@ -33,6 +33,7 @@ public final class FluxStore<State : FluxState, Action: FluxAction, Environment:
         }
         
         sideEffect
+            .receive(on: queue)
             .sink { self.dispatch($0, queue: queue) }
             .store(in: &sideEffects)
     }
