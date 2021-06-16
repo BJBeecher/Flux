@@ -23,19 +23,17 @@ public final class FluxStore<State : FluxState, Action: FluxAction, Environment:
     
     var sideEffects = Set<AnyCancellable>()
     
-    public func dispatch(_ action: Action, queue: DispatchQueue = .main, animation: Animation? = nil){
+    public func dispatch(_ action: Action, queue: DispatchQueue = .main){
         var newState = state
         
         guard let sideEffect = reducer(&newState, action, environment) else { return }
         
         queue.async {
-            withAnimation(animation) {
-                self.state = newState
-            }
+            self.state = newState
         }
         
         sideEffect
-            .sink { self.dispatch($0, queue: queue, animation: animation) }
+            .sink { self.dispatch($0, queue: queue) }
             .store(in: &sideEffects)
     }
     
