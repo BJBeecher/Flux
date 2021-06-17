@@ -32,14 +32,21 @@ public final class FluxStore<State : FluxState, Action: FluxAction, Environment:
             .store(in: &sideEffects)
     }
     
-    public func derived<DerivedState: Equatable, ExtractedAction>(
-        deriveState: (State) -> DerivedState,
-        embedAction: @escaping (ExtractedAction) -> Action
-    ) -> FluxStore<DerivedState, ExtractedAction, Environment> {
-        .init(initialState: deriveState(state), reducer: { _, action, _ in
+    public func derived<NewState: Equatable, NewAction>(deriveState: @escaping (State) -> NewState, embedAction: @escaping (NewAction) -> Action) -> FluxStore<NewState, NewAction, Environment> {
+        let reducer : FluxReducer<NewState, NewAction, Environment> = { _, action, _ in
             self.dispatch(embedAction(action))
             return nil
-        }, environment: environment)
+        }
+        
+        let store : FluxStore<NewState, NewAction, Environment> = .init(initialState: deriveState(state), reducer: reducer, environment: environment)
+        
+        $state
+            .map(deriveState)
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .assign(to: &store.$state)
+        
+        return store
     }
     
     public func binding<Value>(for keypath: KeyPath<State, Value>, transform: @escaping (Value) -> Action) -> Binding<Value> {
