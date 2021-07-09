@@ -7,4 +7,4 @@
 
 import Combine
 
-public typealias FluxReducer<State: FluxState, Action: FluxAction, Environment: FluxEnvironment> = (inout State, Action, Environment) -> AnyPublisher<Action, Never>?
+public typealias FluxReducer<State: FluxState> = (State, FluxAction) -> State
