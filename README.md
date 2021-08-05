@@ -1,3 +1,3 @@
-# Redux
+# Flux
 
-A description of this package.
+A lightweight flux-like implementation in swift. Not yet production ready.
