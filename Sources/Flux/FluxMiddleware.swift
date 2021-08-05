@@ -7,4 +7,4 @@
 
 import Combine
 
-public typealias FluxMiddleware<State: FluxState> = (State, FluxAction) -> FluxAction?
+public typealias FluxMiddleware<State: FluxState, Environment: FluxEnvironment> = (State, FluxAction, Environment) -> FluxAction?

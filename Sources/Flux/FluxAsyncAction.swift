@@ -7,6 +7,10 @@
 
 import Combine
 
-public protocol FluxAsyncAction : FluxAction {
-    func execute(state: FluxState) -> AnyPublisher<FluxAction, Never>
+open class FluxAsyncAction<State: FluxState, Environment: FluxEnvironment> : FluxAction {
+    public init() {}
+    
+    open func sideEffects(state: State, env: Environment, dispatch: @escaping FluxDispatch) {
+        fatalError("async action execute method not implemented")
+    }
 }
