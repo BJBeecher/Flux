@@ -37,9 +37,9 @@ public final class FluxScope<State: Equatable> : ObservableObject {
         }
     }
     
-    func observe<T: FluxState>(statePub publisher: Published<T>.Publisher, deriveState: @escaping (T) -> State){
+    func observe<S: FluxState, E: FluxEnvironment>(statePub publisher: Published<S>.Publisher, environment: E, deriveState: @escaping (S, E) -> State){
         token = publisher
-            .map(deriveState)
+            .map { newState in deriveState(newState, environment) }
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] output in

@@ -39,9 +39,9 @@ public final class FluxStore<State : FluxState, Environment: FluxEnvironment> : 
         }
     }
     
-    public func scope<NewState: Equatable>(deriveState: @escaping (State) -> NewState) -> FluxScope<NewState> {
-        let store : FluxScope<NewState> = .init(state: deriveState(state), dispatch: dispatch)
-        store.observe(statePub: $state, deriveState: deriveState)
+    public func scope<NewState: Equatable>(deriveState: @escaping (State, Environment) -> NewState) -> FluxScope<NewState> {
+        let store : FluxScope<NewState> = .init(state: deriveState(state, environment), dispatch: dispatch)
+        store.observe(statePub: $state, environment: environment, deriveState: deriveState)
         return store
     }
     
