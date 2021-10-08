@@ -48,4 +48,16 @@ public final class FluxScope<State: Equatable> : ObservableObject {
                 }
             }
     }
+    
+    func observe<S: FluxState>(statePub publisher: Published<S>.Publisher, deriveState: @escaping (S) -> State){
+        token = publisher
+            .map(deriveState)
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] output in
+                withAnimation {
+                    self?.state = output
+                }
+            }
+    }
 }

@@ -45,6 +45,12 @@ public final class FluxStore<State : FluxState, Environment: FluxEnvironment> : 
         return store
     }
     
+    public func scope<NewState: Equatable>(deriveState: @escaping (State) -> NewState) -> FluxScope<NewState> {
+        let store : FluxScope<NewState> = .init(state: deriveState(state), dispatch: dispatch)
+        store.observe(statePub: $state, deriveState: deriveState)
+        return store
+    }
+    
     public func binding<Value>(for keypath: KeyPath<State, Value>, transform: @escaping (Value) -> FluxAction) -> Binding<Value> {
         Binding {
             self.state[keyPath: keypath]
