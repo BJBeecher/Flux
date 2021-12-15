@@ -10,7 +10,7 @@ import Combine
 open class FluxAsyncAction<State: FluxState, Environment: FluxEnvironment> : FluxAction {
     public init() {}
     
-    open func sideEffects(state: State, env: Environment, dispatch: @escaping FluxDispatch) {
+    open func execute(state: @autoclosure () -> State, env: Environment, dispatch: @escaping FluxDispatch) async {
         fatalError("async action execute method not implemented")
     }
 }
