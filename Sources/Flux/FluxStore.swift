@@ -9,8 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-public actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
-    
+public final class FluxStore<State: FluxState, Environment: FluxEnvironment> {
     @Published public private (set) var state : State
     
     let reducer : FluxReducer<State>
@@ -28,8 +27,12 @@ public actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
         self.middlewares = middlewares
         self.environment = environment
     }
-    
-    public func dispatch(_ action: FluxAction){
+}
+
+// computed properties
+
+public extension FluxStore {
+    func dispatch(_ action: FluxAction){
         for middleware in middlewares {
             middleware(state, action, environment)
         }
@@ -43,7 +46,7 @@ public actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
         }
     }
     
-    public func scope<NewState: Equatable>(deriveState: @escaping (State) -> NewState) -> FluxScope<NewState> {
+    func scope<NewState: Equatable>(deriveState: @escaping (State) -> NewState) -> FluxScope<NewState> {
         let store : FluxScope<NewState> = .init(state: deriveState(state), dispatch: dispatch)
         store.observe(statePub: $state, deriveState: deriveState)
         return store
