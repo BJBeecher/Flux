@@ -9,7 +9,17 @@ import Foundation
 import SwiftUI
 import Combine
 
-public final class FluxScope<State: Equatable> : ObservableObject {
+// interface
+
+public protocol FluxScopeInterface : ObservableObject {
+    associatedtype State : Equatable
+    var state : State { get }
+    func dispatch(_ action: FluxAction)
+}
+
+// implementation
+
+public final class FluxScope<State: Equatable> : FluxScopeInterface {
     @Published public private (set) var state : State
     
     let _dispatch : FluxDispatch
