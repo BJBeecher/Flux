@@ -24,7 +24,7 @@ public final class FluxScope<State: Equatable> : FluxScopeInterface {
     
     let _dispatch : FluxDispatch
     
-    init(state: State, dispatch: @escaping FluxDispatch){
+    public init(state: State, dispatch: @escaping FluxDispatch){
         self.state = state
         self._dispatch = dispatch
     }
