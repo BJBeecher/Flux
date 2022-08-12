@@ -7,10 +7,15 @@
 
 import Foundation
 import Combine
-import SwiftUI
 
 public final actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
-    @Published public private (set) var state : State
+    let stateSubject : CurrentValueSubject<State, Never>
+    
+    public private (set) var state : State {
+        didSet {
+            stateSubject.send(state)
+        }
+    }
     
     let reducer : FluxReducer<State>
     let middlewares : [FluxMiddleware<State, Environment>]
@@ -22,6 +27,7 @@ public final actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
         middlewares: [FluxMiddleware<State, Environment>],
         environment: Environment
     ){
+        self.stateSubject = CurrentValueSubject(state)
         self.state = state
         self.reducer = reducer
         self.middlewares = middlewares
@@ -44,9 +50,9 @@ public extension FluxStore {
         }
     }
     
-    func scope<NewState: Equatable>(deriveState: @escaping (State) -> NewState) -> FluxScope<NewState> {
-        let store : FluxScope<NewState> = .init(state: deriveState(state), dispatch: dispatch)
-        store.observe(statePub: $state, deriveState: deriveState)
+    nonisolated func scope<NewState: Equatable>(deriveState: @escaping (State) -> NewState) -> FluxScope<NewState> {
+        let store : FluxScope<NewState> = .init(state: deriveState(stateSubject.value), dispatch: dispatch)
+        store.observe(stateSubject: stateSubject, deriveState: deriveState)
         return store
     }
 }

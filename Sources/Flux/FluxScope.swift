@@ -35,8 +35,8 @@ public final class FluxScope<State: Equatable> : ObservableObject {
         }
     }
     
-    func observe<S: FluxState>(statePub publisher: Published<S>.Publisher, deriveState: @escaping (S) -> State){
-        token = publisher
+    func observe<S: FluxState>(stateSubject subject: CurrentValueSubject<S, Never>, deriveState: @escaping (S) -> State){
+        token = subject
             .map(deriveState)
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
