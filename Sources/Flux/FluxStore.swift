@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-public final class FluxStore<State: FluxState, Environment: FluxEnvironment> {
+public final actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
     @Published public private (set) var state : State
     
     let reducer : FluxReducer<State>
@@ -32,17 +32,15 @@ public final class FluxStore<State: FluxState, Environment: FluxEnvironment> {
 // computed properties
 
 public extension FluxStore {
-    func dispatch(_ action: FluxAction){
+    func dispatch(_ action: FluxAction) async {
         for middleware in middlewares {
-            middleware(state, action, environment)
+            await middleware(state, action, environment)
         }
         
         state = reducer(state, action)
         
-        if let asyncAction = action as? FluxAsyncAction<State, Environment> {
-            Task {
-                await asyncAction.execute(state: state, env: environment, dispatch: dispatch)
-            }
+        if let asyncAction = action as? FluxActionCreator<State, Environment> {
+            await asyncAction.execute(state: state, env: environment, dispatch: dispatch)
         }
     }
     

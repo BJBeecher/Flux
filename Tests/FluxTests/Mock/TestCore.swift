@@ -31,11 +31,11 @@ func reduce(state: TestState, action: FluxAction) -> TestState {
 
 struct ViewDidAppear : FluxAction {}
 
-class AsyncAction : FluxAsyncAction<TestState, TestEnvironment> {
+class AsyncAction : FluxActionCreator<TestState, TestEnvironment> {
     override func execute(state: @autoclosure () -> TestState, env: TestEnvironment, dispatch: @escaping FluxDispatch) async {
         do {
             try await Task.sleep(nanoseconds: 5_000_000_000)
-            dispatch(ViewDidAppear())
+            await dispatch(ViewDidAppear())
         } catch {
             print(error)
         }

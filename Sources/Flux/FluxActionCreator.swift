@@ -7,7 +7,7 @@
 
 import Combine
 
-open class FluxAsyncAction<State: FluxState, Environment: FluxEnvironment> : FluxAction {
+open class FluxActionCreator<State: FluxState, Environment: FluxEnvironment> : FluxAction {
     public init() {}
     
     open func execute(state: @autoclosure () -> State, env: Environment, dispatch: @escaping FluxDispatch) async {
