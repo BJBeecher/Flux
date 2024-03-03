@@ -7,4 +7,4 @@
 
 import Foundation
 
-public typealias FluxDispatch = (FluxAction) async -> Void
+public typealias FluxDispatch = (any FluxDispatchable) async -> Void

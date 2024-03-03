@@ -7,4 +7,4 @@
 
 import Combine
 
-public typealias FluxMiddleware<State: FluxState, Environment: FluxEnvironment> = (@autoclosure () -> State, FluxAction, Environment) async -> Void
+public typealias FluxMiddleware<State: FluxState, Environment: FluxEnvironment> = (@autoclosure () -> State, any FluxDispatchable, Environment) async -> Void

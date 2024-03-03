@@ -7,4 +7,6 @@
 
 import Foundation
 
-public protocol FluxState {}
+public protocol FluxState: Sendable {
+    init()
+}

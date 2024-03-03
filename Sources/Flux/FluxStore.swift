@@ -7,8 +7,9 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
-public final actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
+public actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
     let stateSubject : CurrentValueSubject<State, Never>
     
     public private (set) var state : State {
@@ -19,7 +20,7 @@ public final actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
     
     let reducer : FluxReducer<State>
     let middlewares : [FluxMiddleware<State, Environment>]
-    let environment : Environment
+    public nonisolated let environment : Environment
     
     public init(
         initialState state: State,
@@ -38,20 +39,25 @@ public final actor FluxStore<State: FluxState, Environment: FluxEnvironment> {
 // computed properties
 
 public extension FluxStore {
-    func dispatch(_ action: FluxAction) async {
+    private func defaultDispatch(_ action: any FluxDispatchable) async {
         for middleware in middlewares {
             await middleware(state, action, environment)
         }
         
         state = reducer(state, action)
-        
-        if let asyncAction = action as? FluxActionCreator<State, Environment> {
-            await asyncAction.execute(state: state, env: environment, dispatch: dispatch)
-        }
+    }
+    
+    func dispatch(_ action: any FluxAction) async {
+        await defaultDispatch(action)
+    }
+    
+    func dispatch<T: FluxActionCreator>(creator: T) async where T.State == State, T.Environment == Environment {
+        await defaultDispatch(creator)
+        await creator.execute(store: self)
     }
     
     nonisolated func scope<NewState: Equatable>(deriveState: @escaping (State) -> NewState) -> FluxScope<NewState> {
-        let store : FluxScope<NewState> = .init(state: deriveState(stateSubject.value), dispatch: dispatch)
+        let store : FluxScope<NewState> = .init(store: self, slice: deriveState(stateSubject.value))
         store.observe(stateSubject: stateSubject, deriveState: deriveState)
         return store
     }

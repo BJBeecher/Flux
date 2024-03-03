@@ -7,4 +7,4 @@
 
 import Combine
 
-public typealias FluxReducer<State: FluxState> = (State, FluxAction) -> State
+public typealias FluxReducer<State: FluxState> = (State, any FluxDispatchable) -> State

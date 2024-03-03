@@ -7,4 +7,4 @@
 
 import Foundation
 
-public protocol FluxAction {}
+public protocol FluxAction: FluxDispatchable {}

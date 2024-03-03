@@ -7,10 +7,9 @@
 
 import Combine
 
-open class FluxActionCreator<State: FluxState, Environment: FluxEnvironment> : FluxAction {
-    public init() {}
+public protocol FluxActionCreator: FluxDispatchable {
+    associatedtype State: FluxState
+    associatedtype Environment: FluxEnvironment
     
-    open func execute(state: @autoclosure () -> State, env: Environment, dispatch: @escaping FluxDispatch) async {
-        fatalError("async action execute method not implemented")
-    }
+    func execute(store: FluxStore<State, Environment>) async
 }
