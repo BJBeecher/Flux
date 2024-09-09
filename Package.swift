@@ -13,21 +13,14 @@ let package = Package(
             targets: ["Flux"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-syntax", from: "509.0.0"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies.git", .upToNextMajor(from: "1.3.9")),
     ],
     targets: [
         .target(
             name: "Flux",
-            dependencies: []),
+            dependencies: [.product(name: "Dependencies", package: "swift-dependencies")]),
         .testTarget(
             name: "FluxTests",
-            dependencies: ["Flux"]),
-        .macro(
-            name: "FluxMacros",
-            dependencies: [
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-            ]
-        ),
+            dependencies: ["Flux"])
     ]
 )

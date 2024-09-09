@@ -2,11 +2,11 @@
 //  File.swift
 //  
 //
-//  Created by BJ Beecher on 6/14/21.
+//  Created by BJ Beecher on 9/9/24.
 //
 
 import Foundation
 
-public protocol FluxState: Sendable {
+public protocol FluxState {
     init()
 }
