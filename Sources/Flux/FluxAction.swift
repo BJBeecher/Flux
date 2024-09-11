@@ -7,4 +7,10 @@
 
 import Foundation
 
-public protocol FluxAction {}
+public protocol FluxAction: Sendable {
+    func sideEffect(center: FluxCenter) async
+}
+
+public extension FluxAction {
+    func sideEffect(center: FluxCenter) async {}
+}

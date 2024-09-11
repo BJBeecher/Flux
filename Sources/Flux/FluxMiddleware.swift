@@ -6,5 +6,5 @@
 //
 
 public protocol FluxMiddleware {
-    func execute(action: any FluxAction) async -> any FluxAction
+    func execute(center: FluxCenter, action: any FluxAction) async
 }

@@ -9,29 +9,29 @@ import Foundation
 import Combine
 import SwiftUI
 
-public actor FluxCenter {
+public final class FluxCenter {
     public static let `default` = FluxCenter()
     
-    let actionSubject = PassthroughSubject<FluxAction, Never>()
     var middlewares = [FluxMiddleware]()
+    var actionSubject = PassthroughSubject<any FluxAction, Never>()
 }
 
 // MARK: Computed properties
 
 public extension FluxCenter {
-    var actions: AsyncPublisher<PassthroughSubject<FluxAction, Never>> {
+    var actions: AsyncPublisher<PassthroughSubject<any FluxAction, Never>> {
         actionSubject.values
     }
 }
 
-// MARK: Setup
+// MARK: Middleware
 
 public extension FluxCenter {
-    func use(_ middleware: FluxMiddleware) {
+    func use(_ middleware: any FluxMiddleware) {
         self.middlewares.append(middleware)
     }
     
-    func use(_ middlewares: [FluxMiddleware]) {
+    func use(_ middlewares: [any FluxMiddleware]) {
         self.middlewares.append(contentsOf: middlewares)
     }
 }
@@ -40,12 +40,12 @@ public extension FluxCenter {
 
 public extension FluxCenter {
     func dispatch(_ action: any FluxAction) async {
-        var newAction = action
-        
         for middleware in self.middlewares {
-            newAction = await middleware.execute(action: newAction)
+            await middleware.execute(center: self, action: action)
         }
         
-        actionSubject.send(newAction)
+        actionSubject.send(action)
+        
+        await action.sideEffect(center: self)
     }
 }

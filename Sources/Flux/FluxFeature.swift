@@ -6,9 +6,7 @@
 //
 
 public protocol FluxFeature {
-    associatedtype State: FluxState
-    
+    associatedtype Action: FluxAction
     init()
-    
-    func reduce(state: inout State, action: FluxAction) async
+    func reduce(action: Action)
 }
