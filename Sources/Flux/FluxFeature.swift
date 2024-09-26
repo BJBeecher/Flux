@@ -5,8 +5,8 @@
 //  Created by BJ Beecher on 4/15/24.
 //
 
-public protocol FluxFeature {
+public protocol FluxFeature: Sendable {
     associatedtype Action: FluxAction
-    init()
-    func reduce(action: Action)
+    
+    mutating func reduce(action: Action)
 }

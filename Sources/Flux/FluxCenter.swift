@@ -46,6 +46,6 @@ public extension FluxCenter {
         
         actionSubject.send(action)
         
-        await action.sideEffect(center: self)
+        await action.sideEffect(dispatch: self.dispatch)
     }
 }
