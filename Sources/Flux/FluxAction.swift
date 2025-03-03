@@ -8,9 +8,9 @@
 import Foundation
 
 public protocol FluxAction: Sendable {
-    func sideEffect(dispatch: FluxDispatch) async
+    func sideEffect(dispatcher: FluxDispatcher<Self>) async
 }
 
 public extension FluxAction {
-    func sideEffect(dispatch: FluxDispatch) async {}
+    func sideEffect(dispatcher: FluxDispatcher<Self>) async {}
 }

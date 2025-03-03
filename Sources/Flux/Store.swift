@@ -8,19 +8,23 @@
 import Combine
 import SwiftUI
 
+// global actions go to all observing stores. Others are specific to each store.
+
 @Observable
 public final class Store<Feature: FluxFeature> {
+    let storeId = UUID()
     let fluxCenter = FluxCenter.default
-    
     public var state: Feature
-    
     var cancellable: AnyCancellable?
     
     public init(_ feature: Feature) {
         self.state = feature
         
         self.cancellable = fluxCenter.actionSubject
-            .compactMap { $0 as? Feature.Action }
+            .filter { [weak self] in
+                $0.storeId == nil || $0.storeId == self?.storeId
+            }
+            .compactMap { $0.action as? Feature.Action }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] action in
                 withAnimation {
@@ -34,23 +38,23 @@ public final class Store<Feature: FluxFeature> {
     }
     
     public func dispatch(_ action: Feature.Action) async {
-        await fluxCenter.dispatch(action)
+        await fluxCenter.dispatch(storeId: storeId, action: action)
     }
     
     public func dispatch(global action: any FluxAction) async {
-        await fluxCenter.dispatch(action)
+        await fluxCenter.dispatch(global: action)
     }
     
     @discardableResult
     public func dispatch(_ action: Feature.Action) -> Task<Void, Never> {
-        Task(priority: .userInitiated) {
-            await dispatch(action)
+        Task(priority: .high) {
+            await fluxCenter.dispatch(storeId: storeId, action: action)
         }
     }
     
     @discardableResult
     public func dispatch(global action: any FluxAction) -> Task<Void, Never> {
-        Task(priority: .userInitiated) {
+        Task(priority: .high) {
             await dispatch(global: action)
         }
     }
