@@ -5,6 +5,7 @@
 //  Created by BJ Beecher on 9/9/24.
 //
 
+import Dependencies
 import Combine
 import SwiftUI
 
@@ -13,9 +14,13 @@ import SwiftUI
 @Observable
 public final class Store<Feature: FluxFeature> {
     let storeId = UUID()
-    let fluxCenter = FluxCenter.default
     public var state: Feature
+    
+    @ObservationIgnored
     var cancellable: AnyCancellable?
+    
+    @ObservationIgnored
+    @Dependency(\.fluxCenter) private var fluxCenter
     
     public init(_ feature: Feature) {
         self.state = feature

@@ -11,8 +11,6 @@ import Combine
 import SwiftUI
 
 public final class FluxCenter {
-    public static let `default` = FluxCenter()
-    
     var middlewares = [FluxMiddleware]()
     var actionSubject = PassthroughSubject<(storeId: UUID?, action: any FluxAction), Never>()
 }
@@ -66,6 +64,13 @@ public extension FluxCenter {
 
 // MARK: Dependency
 
-extension FluxCenter: DependencyKey {
-    public static let liveValue = FluxCenter.default
+struct FluxCenterDependencyKey: DependencyKey {
+    public static let liveValue = FluxCenter()
+}
+
+public extension DependencyValues {
+    var fluxCenter: FluxCenter {
+        get { self[FluxCenterDependencyKey.self] }
+        set { self[FluxCenterDependencyKey.self] = newValue }
+    }
 }
